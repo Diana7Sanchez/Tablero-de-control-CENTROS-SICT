@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de Control Centros SICT</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --guinda:#611232;
+  --guinda2:#7A1E3A;
+  --dorado:#A57F2C;
+  --verde:#002F2A;
+  --rojo:#C62828;
+  --azul:#1565C0;
+  --bg:#F4F5F7;
+  --text:#2D3035;
+  --muted:#727780;
+  --border:#E4E6EA;
+  --white:#fff;
+  --shadow:0 10px 30px rgba(30,30,30,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}
+
+/* LOGIN */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#4c0d26 0%,#611232 48%,#7A1E3A 100%);
+  padding:24px;position:relative;overflow:hidden;
+}
+#loginScreen:before,#loginScreen:after{
+  content:"";position:absolute;border:1px solid rgba(255,255,255,.09);border-radius:50%;
+}
+#loginScreen:before{width:600px;height:600px;right:-180px;top:-220px}
+#loginScreen:after{width:500px;height:500px;left:-230px;bottom:-250px}
+.login-card{
+  width:min(1050px,100%);min-height:610px;background:#fff;border-radius:22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.24);display:grid;grid-template-columns:1.05fr .95fr;
+  overflow:hidden;position:relative;z-index:1;
+}
+.login-brand{
+  background:linear-gradient(150deg,var(--guinda),#4c0d26);
+  color:white;padding:60px;display:flex;flex-direction:column;justify-content:center;
+}
+.logo-lockup{display:flex;align-items:center;gap:18px;margin-bottom:34px}
+.logo-mark{width:72px;height:72px;border:2px solid rgba(255,255,255,.75);border-radius:14px;
+display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:800;letter-spacing:-2px}
+.logo-name{font-size:31px;font-weight:800;letter-spacing:.5px}
+.logo-sub{font-size:13px;opacity:.75;margin-top:3px}
+.login-brand h1{font-size:37px;line-height:1.08;margin:0 0 18px}
+.login-brand p{font-size:16px;line-height:1.7;color:rgba(255,255,255,.78);max-width:520px}
+.gold-line{width:72px;height:4px;background:var(--dorado);border-radius:5px;margin:8px 0 25px}
+.login-form{padding:58px 62px;display:flex;flex-direction:column;justify-content:center}
+.login-form h2{font-size:28px;margin:0 0 7px;color:var(--guinda)}
+.login-form .hint{color:var(--muted);font-size:14px;margin:0 0 28px}
+.field{margin-bottom:17px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+.field input,.field select{
+  width:100%;height:48px;border:1px solid #D8DBE0;border-radius:10px;padding:0 14px;
+  outline:none;background:#fff;transition:.2s;
+}
+.field input:focus,.field select:focus{border-color:var(--guinda);box-shadow:0 0 0 3px rgba(97,18,50,.1)}
+.login-btn{
+  height:50px;border:0;border-radius:10px;background:var(--guinda);color:#fff;font-weight:700;
+  cursor:pointer;margin-top:8px;transition:.2s
+}
+.login-btn:hover{background:#4e0d28;transform:translateY(-1px)}
+.demo{font-size:12px;color:#8A8E95;margin-top:17px;text-align:center}
+.demo strong{color:var(--guinda)}
+
+/* APP */
+#app{display:none;min-height:100vh}
+.sidebar{
+  width:260px;background:#fff;border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;
+  z-index:20;display:flex;flex-direction:column
+}
+.sidebar-top{height:90px;padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.sidebar-logo{width:42px;height:42px;background:var(--guinda);color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar-title{font-weight:800;color:var(--guinda);font-size:15px;line-height:1.1}
+.sidebar-title small{display:block;color:var(--muted);font-size:10px;font-weight:500;margin-top:3px}
+.nav{padding:20px 13px;overflow:auto}
+.nav-section{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#999FA8;padding:10px 12px 8px}
+.nav button{
+  width:100%;border:0;background:transparent;text-align:left;padding:12px 13px;border-radius:9px;
+  color:#4E535B;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13px;margin:2px 0
+}
+.nav button:hover{background:#F7F2F4;color:var(--guinda)}
+.nav button.active{background:#F4EDEF;color:var(--guinda);font-weight:700}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;padding:17px;border-top:1px solid var(--border)}
+.user-mini{display:flex;gap:10px;align-items:center}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--guinda);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.user-mini b{font-size:12px}.user-mini span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+
+.main{margin-left:260px;min-height:100vh}
+.topbar{
+  height:76px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;
+  justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10
+}
+.breadcrumb{font-size:13px;color:var(--muted)}.breadcrumb strong{color:var(--guinda)}
+.top-actions{display:flex;align-items:center;gap:14px}
+.center-badge{padding:8px 13px;background:#F7F7F8;border:1px solid var(--border);border-radius:9px;font-size:12px}
+.logout{border:0;background:transparent;color:var(--guinda);font-size:12px;font-weight:700;cursor:pointer}
+
+.content{padding:30px 34px 45px;max-width:1500px;margin:auto}
+.hero{
+  background:linear-gradient(135deg,var(--guinda),var(--guinda2));color:#fff;border-radius:16px;
+  padding:29px 32px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)
+}
+.hero h1{margin:0 0 7px;font-size:27px}.hero p{margin:0;color:rgba(255,255,255,.76);font-size:13px}
+.hero-meta{text-align:right;font-size:11px;color:rgba(255,255,255,.7)}
+.hero-meta strong{display:block;color:#fff;font-size:14px;margin-top:4px}
+
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:30px 0 14px}
+.section-title h2{margin:0;font-size:18px;color:#333}.section-title span{font-size:12px;color:var(--muted)}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.metric{background:#fff;border:1px solid var(--border);border-radius:13px;padding:19px;box-shadow:0 3px 12px rgba(0,0,0,.03)}
+.metric-top{display:flex;justify-content:space-between;align-items:center}.metric-label{font-size:11px;color:var(--muted);font-weight:700}
+.metric-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;background:#F4EDEF;color:var(--guinda)}
+.metric-value{font-size:27px;font-weight:800;margin-top:13px}.metric-foot{font-size:10px;color:#8A8F97;margin-top:4px}
+
+.modules{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.module{
+  background:#fff;border:1px solid var(--border);border-radius:15px;padding:23px;min-height:230px;
+  cursor:pointer;transition:.22s;position:relative;overflow:hidden
+}
+.module:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#D8C5CD}
+.module:after{content:"";position:absolute;right:-35px;bottom:-40px;width:120px;height:120px;border-radius:50%;background:#F8F1F4}
+.module-icon{width:48px;height:48px;border-radius:12px;background:#F4EDEF;color:var(--guinda);display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:18px}
+.module:nth-child(2) .module-icon{background:#F5F1E7;color:var(--dorado)}
+.module:nth-child(3) .module-icon{background:#EDF5F3;color:var(--verde)}
+.module:nth-child(4) .module-icon{background:#EDF3FA;color:var(--azul)}
+.module h3{margin:0 0 7px;font-size:17px}.module p{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 15px}
+.module-link{font-size:11px;font-weight:800;color:var(--guinda)}
+
+.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:20px}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:12px}.table th{text-align:left;color:#858A92;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:11px;border-bottom:1px solid var(--border)}.table td{padding:13px 11px;border-bottom:1px solid #F0F1F3}.table tr:last-child td{border-bottom:0}
+.status{display:inline-flex;padding:5px 8px;border-radius:99px;font-size:10px;font-weight:700}.status.ok{background:#E9F5F1;color:#14624D}.status.warn{background:#FBF2DF;color:#8A6818}
+
+.page{display:none}.page.active{display:block}
+.back-btn{border:0;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--guinda);font-weight:700;cursor:pointer}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.simple-card{background:#fff;border:1px solid var(--border);border-radius:13px;padding:20px}.simple-card h3{margin:0 0 8px;font-size:15px}.simple-card p{font-size:12px;color:var(--muted);line-height:1.5}.simple-card ul{padding-left:17px;color:#5D626A;font-size:12px;line-height:1.9}
+
+.search{height:42px;border:1px solid var(--border);border-radius:9px;padding:0 13px;width:280px;outline:none}
+.toolbar{display:flex;justify-content:space-between;gap:15px;margin-bottom:15px}
+.center-list{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.center-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:17px;cursor:pointer}.center-item:hover{border-color:#D6B7C4;box-shadow:var(--shadow)}.center-item b{font-size:13px}.center-item span{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+
+@media(max-width:1050px){
+  .modules{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}
+  .center-list{grid-template-columns:repeat(2,1fr)}.card-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .sidebar{width:70px}.sidebar-title,.nav-section,.nav button span:not(.nav-icon),.user-mini div:not(.avatar){display:none}
+  .sidebar-top{justify-content:center;padding:15px}.nav button{justify-content:center;padding:13px}.sidebar-bottom{display:flex;justify-content:center;padding:12px}
+  .main{margin-left:70px}.topbar{padding:0 17px}.center-badge{display:none}.content{padding:20px 15px}
+  .hero{padding:23px;display:block}.hero-meta{text-align:left;margin-top:15px}.modules,.metrics,.center-list,.card-grid{grid-template-columns:1fr}
+  .login-card{grid-template-columns:1fr}.login-brand{display:none}.login-form{padding:42px 28px}
+}
+
+/* V2 — carpetas normativas y presupuesto */
+.folder-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.folder-card{
+  background:#fff;border:1px solid var(--border);border-radius:13px;padding:21px;
+  cursor:pointer;transition:.2s;position:relative;min-height:155px;
+}
+.folder-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#D6B7C4}
+.folder-top{display:flex;align-items:center;gap:12px;margin-bottom:15px}
+.folder-icon{font-size:30px;line-height:1;color:var(--dorado)}
+.folder-card h3{font-size:15px;margin:0;color:#30343A}
+.folder-card p{font-size:11px;color:var(--muted);line-height:1.5;margin:0}
+.folder-count{position:absolute;right:17px;bottom:15px;font-size:10px;color:#969BA3}
+.folder-arrow{position:absolute;right:17px;top:17px;color:var(--guinda);font-weight:800}
+.empty-state{
+  min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;color:var(--muted)
+}
+.empty-folder{width:70px;height:55px;border-radius:10px;background:#F5F1E7;display:flex;align-items:center;justify-content:center;font-size:31px;margin-bottom:15px;color:var(--dorado)}
+.empty-state h3{margin:0 0 7px;color:#444;font-size:17px}.empty-state p{margin:0;font-size:12px;max-width:430px;line-height:1.6}
+.folder-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.path{font-size:12px;color:var(--muted)}.path strong{color:var(--guinda)}
+.chart-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;min-height:330px}
+.chart-card.wide{grid-column:1/-1}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px}
+.chart-head h3{margin:0;font-size:14px}.chart-head span{font-size:10px;color:var(--muted)}
+.chart-box{position:relative;height:245px}
+.progress-wrap{margin-top:12px}.progress-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:7px;color:#555}
+.progress-bar{height:10px;background:#ECEDEF;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:var(--guinda);border-radius:99px}
+.finance-filters{display:flex;gap:10px;flex-wrap:wrap}
+.finance-select{height:38px;border:1px solid var(--border);background:#fff;border-radius:8px;padding:0 10px;font-size:11px}
+@media(max-width:1050px){.folder-grid{grid-template-columns:repeat(2,1fr)}.chart-grid{grid-template-columns:1fr}.chart-card.wide{grid-column:auto}}
+@media(max-width:760px){.folder-grid{grid-template-columns:1fr}.folder-toolbar{display:block}.finance-filters{margin-top:12px}}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo-lockup">
+        <div class="logo-mark">SICT</div>
+        <div><div class="logo-name">SICT</div><div class="logo-sub">Gobierno de México</div></div>
+      </div>
+      <div class="gold-line"></div>
+      <h1>Plataforma Administrativa de Centros SICT</h1>
+      <p>Acceso centralizado a normativa, información de los Centros SICT, presupuesto y estudios para apoyar la gestión y consulta institucional.</p>
+    </div>
+    <div class="login-form">
+      <h2>Iniciar sesión</h2>
+      <p class="hint">Ingrese sus datos para acceder a la plataforma.</p>
+      <div class="field">
+        <label>Centro SICT</label>
+        <select id="centro">
+          <option value="">Seleccione un Centro SICT</option>
+          <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
+          <option>Campeche</option><option>Chiapas</option><option>Chihuahua</option><option>Ciudad de México</option>
+          <option>Coahuila</option><option>Colima</option><option>Durango</option><option>Guanajuato</option>
+          <option>Guerrero</option><option>Hidalgo</option><option>Jalisco</option><option>México</option>
+          <option>Michoacán</option><option>Morelos</option><option>Nayarit</option><option>Nuevo León</option>
+          <option>Oaxaca</option><option>Puebla</option><option>Querétaro</option><option>Quintana Roo</option>
+          <option>San Luis Potosí</option><option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
+          <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option><option>Yucatán</option><option>Zacatecas</option>
+        </select>
+      </div>
+      <div class="field"><label>Correo institucional</label><input id="correo" type="email" placeholder="usuario@sict.gob.mx"></div>
+      <div class="field"><label>Contraseña</label><input id="password" type="password" placeholder="••••••••"></div>
+      <button class="login-btn" onclick="login()">Ingresar a la plataforma</button>
+      <div class="demo">Modo prototipo · Acceso simulado: <strong>cualquier correo y contraseña</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">SICT</div>
+      <div class="sidebar-title">Tablero de Control<small>Centros SICT</small></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">PRINCIPAL</div>
+      <button class="active" onclick="showPage('inicio',this)"><span class="nav-icon">⌂</span><span>Inicio</span></button>
+      <button onclick="showPage('normativa',this)"><span class="nav-icon">▤</span><span>Normativa</span></button>
+      <button onclick="showPage('centros',this)"><span class="nav-icon">▦</span><span>Centros SICT</span></button>
+      <button onclick="showPage('presupuesto',this)"><span class="nav-icon">$</span><span>Presupuesto</span></button>
+      <button onclick="showPage('estudios',this)"><span class="nav-icon">◫</span><span>Estudios</span></button>
+      <div class="nav-section">SISTEMA</div>
+      <button onclick="alert('Módulo reservado para la siguiente versión.')"><span class="nav-icon">⚙</span><span>Configuración</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini"><div class="avatar">US</div><div><b>Usuario SICT</b><span id="miniCentro">Centro SICT</span></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Plataforma / <strong id="crumb">Inicio</strong></div>
+      <div class="top-actions"><div class="center-badge">Centro: <b id="topCentro">—</b></div><button class="logout" onclick="logout()">Cerrar sesión</button></div>
+    </header>
+
+    <div class="content">
+      <!-- INICIO -->
+      <section id="page-inicio" class="page active">
+        <div class="hero">
+          <div><h1>Panel general</h1><p>Consulta y administración de información de los Centros SICT.</p></div>
+          <div class="hero-meta">ÚLTIMA ACTUALIZACIÓN<strong>09 de septiembre de 2026</strong></div>
+        </div>
+
+        <div class="section-title"><h2>Resumen nacional</h2><span>Información de referencia · Datos simulados</span></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-top"><span class="metric-label">CENTROS SICT</span><span class="metric-icon">▦</span></div><div class="metric-value">31</div><div class="metric-foot">Centros registrados</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">DOCUMENTOS NORMATIVOS</span><span class="metric-icon">▤</span></div><div class="metric-value">248</div><div class="metric-foot">Documentos disponibles</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">INVERSIÓN</span><span class="metric-icon">$</span></div><div class="metric-value">$18.4 B</div><div class="metric-foot">Dato simulado · ejercicio 2026</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">RED CARRETERA</span><span class="metric-icon">⌁</span></div><div class="metric-value">42,318 km</div><div class="metric-foot">Dato simulado</div></div>
+        </div>
+
+        <div class="section-title"><h2>Módulos de la plataforma</h2><span>Seleccione un módulo para continuar</span></div>
+        <div class="modules">
+          <div class="module" onclick="showPage('normativa')"><div class="module-icon">▤</div><h3>Normativa</h3><p>Consulta organizada del marco normativo, manuales, directrices, procedimientos y NOM's.</p><div class="module-link">Explorar normativa →</div></div>
+          <div class="module" onclick="showPage('centros')"><div class="module-icon">▦</div><h3>Centros SICT</h3><p>Consulta integral de los 31 Centros SICT y sus áreas de Autotransporte, Medicina Preventiva e Infraestructura.</p><div class="module-link">Consultar centros →</div></div>
+          <div class="module" onclick="showPage('presupuesto')"><div class="module-icon">$</div><h3>Presupuesto</h3><p>Visualización agregada de costos, inversión, flujo de efectivo y balance general.</p><div class="module-link">Ver presupuesto →</div></div>
+          <div class="module" onclick="showPage('estudios')"><div class="module-icon">◫</div><h3>Estudios</h3><p>Información territorial y de planeación: red, habitantes y superficie en km².</p><div class="module-link">Consultar estudios →</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-title" style="margin:0 0 8px"><h2>Estado de información</h2><span>Prototipo</span></div>
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Módulo</th><th>Registros / documentos</th><th>Última actualización</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>Normativa</td><td>248 documentos</td><td>09/09/2026</td><td><span class="status ok">Disponible</span></td></tr>
+              <tr><td>Centros SICT</td><td>31 centros</td><td>09/09/2026</td><td><span class="status ok">Disponible</span></td></tr>
+              <tr><td>Presupuesto</td><td>Datos simulados</td><td>09/09/2026</td><td><span class="status warn">Prototipo</span></td></tr>
+              <tr><td>Estudios</td><td>Datos simulados</td><td>09/09/2026</td><td><span class="status warn">Prototipo</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- NORMATIVA -->
+      <section id="page-normativa" class="page">
+        <div class="hero"><div><h1>Normativa</h1><p>Repositorio documental institucional.</p></div><div class="hero-meta">CARPETAS<strong>5</strong></div></div>
+        <div id="normFolderView">
+          <div class="section-title"><h2>Archivo normativo</h2><span>Seleccione una carpeta para consultar su contenido</span></div>
+          <div class="folder-grid">
+            <div class="folder-card" onclick="openFolder('Reglamento Interior')"><span class="folder-arrow">→</span><div class="folder-top"><div class="folder-icon">📁</div><h3>Reglamento Interior</h3></div><p>Marco orgánico y administrativo de la Secretaría.</p><div class="folder-count">0 documentos · carpeta disponible</div></div>
+            <div class="folder-card" onclick="openFolder('Directrices')"><span class="folder-arrow">→</span><div class="folder-top"><div class="folder-icon">📁</div><h3>Directrices</h3></div><p>Directrices institucionales y sectoriales.</p><div class="folder-count">0 documentos · carpeta disponible</div></div>
+            <div class="folder-card" onclick="openFolder('Manuales')"><span class="folder-arrow">→</span><div class="folder-top"><div class="folder-icon">📁</div><h3>Manuales</h3></div><p>Manuales de organización, operación y procedimientos.</p><div class="folder-count">0 documentos · carpeta disponible</div></div>
+            <div class="folder-card" onclick="openFolder('Procedimientos')"><span class="folder-arrow">→</span><div class="folder-top"><div class="folder-icon">📁</div><h3>Procedimientos</h3></div><p>Procedimientos administrativos y operativos.</p><div class="folder-count">0 documentos · carpeta disponible</div></div>
+            <div class="folder-card" onclick="openFolder('NOM´s')"><span class="folder-arrow">→</span><div class="folder-top"><div class="folder-icon">📁</div><h3>NOM's</h3></div><p>Normas Oficiales Mexicanas relacionadas con el sector.</p><div class="folder-count">0 documentos · carpeta disponible</div></div>
+          </div>
+          <div class="panel">
+            <div class="section-title" style="margin:0 0 8px"><h2>Repositorio</h2><span>Preparado para carga documental</span></div>
+            <p style="font-size:12px;color:var(--muted);margin:0">Las carpetas pueden permanecer vacías por ahora. Posteriormente podremos agregar carga de PDF, fecha, versión, área responsable y control documental.</p>
+          </div>
+        </div>
+
+        <div id="normFolderContent" style="display:none">
+          <div class="folder-toolbar">
+            <button class="back-btn" onclick="closeFolder()">← Regresar a carpetas</button>
+            <div class="path">Normativa / <strong id="folderName">Carpeta</strong></div>
+          </div>
+          <div class="panel" style="margin-top:0">
+            <div class="empty-state">
+              <div class="empty-folder">📁</div>
+              <h3 id="emptyTitle">Carpeta vacía</h3>
+              <p>Esta carpeta está disponible para incorporar documentos. Por el momento no contiene archivos.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTROS -->
+      <section id="page-centros" class="page">
+        <div class="hero"><div><h1>Centros SICT</h1><p>Directorio nacional de los 31 Centros SICT.</p></div><div class="hero-meta">CENTROS REGISTRADOS<strong>31</strong></div></div>
+        <div class="section-title"><h2>Directorio</h2><span>Seleccione un Centro para consultar su información</span></div>
+        <div class="toolbar"><input class="search" placeholder="Buscar Centro SICT..." oninput="filterCenters(this.value)"></div>
+        <div id="centerList" class="center-list"></div>
+      </section>
+
+      <!-- CENTRO DETALLE -->
+      <section id="page-centro-detalle" class="page">
+        <button class="back-btn" onclick="showPage('centros')">← Regresar a Centros</button>
+        <div class="section-title"><h2 id="detailTitle">Centro SICT</h2><span>Información simulada</span></div>
+        <div class="card-grid">
+          <div class="simple-card"><h3>🚛 Autotransporte Federal</h3><ul><li>Presupuesto</li><li>Accidentes</li><li>Permisionarios</li><li>Depósitos vehiculares</li><li>Roles</li><li>Flota y modalidades</li><li>Trámites</li><li>Permisos</li></ul></div>
+          <div class="simple-card"><h3>⚕ Medicina Preventiva</h3><ul><li>Presupuesto</li><li>EPIS · cantidad y monto</li><li>EMOS · cantidad y monto</li></ul></div>
+          <div class="simple-card"><h3>▰ Infraestructura</h3><ul><li>Contratos</li><li>KM de red</li><li>Inversión</li><li>Proyección</li><li>Costos unitarios</li><li>Proveedores</li><li>Georreferencia</li></ul></div>
+        </div>
+      </section>
+
+      <!-- PRESUPUESTO -->
+      <section id="page-presupuesto" class="page">
+        <div class="hero">
+          <div><h1>Presupuesto agregado</h1><p>Vista nacional consolidada de la información financiera.</p></div>
+          <div class="hero-meta">EJERCICIO<strong>2026</strong></div>
+        </div>
+
+        <div class="section-title">
+          <h2>Resumen financiero</h2>
+          <div class="finance-filters">
+            <select class="finance-select"><option>Ejercicio 2026</option><option>Ejercicio 2025</option></select>
+            <select class="finance-select"><option>Nacional</option><option>Aguascalientes</option><option>Jalisco</option><option>Nuevo León</option></select>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><div class="metric-top"><span class="metric-label">PRESUPUESTO APROBADO</span><span class="metric-icon">$</span></div><div class="metric-value">$28.6 M</div><div class="metric-foot">Presupuesto anual simulado</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">PRESUPUESTO EJERCIDO</span><span class="metric-icon">✓</span></div><div class="metric-value">$17.2 M</div><div class="metric-foot">Acumulado al periodo</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">AVANCE PRESUPUESTAL</span><span class="metric-icon">↗</span></div><div class="metric-value">60.1%</div><div class="metric-foot">Ejercido / aprobado</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">DISPONIBLE</span><span class="metric-icon">◌</span></div><div class="metric-value">$11.4 M</div><div class="metric-foot">Saldo por ejercer</div></div>
+        </div>
+
+        <div class="section-title"><h2>Comportamiento presupuestal</h2><span>Datos simulados · ejercicio 2026</span></div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <div class="chart-head"><h3>Aprobado vs. ejercido por rubro</h3><span>Millones de pesos</span></div>
+            <div class="chart-box"><canvas id="budgetBar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><h3>Distribución del presupuesto</h3><span>Presupuesto aprobado</span></div>
+            <div class="chart-box"><canvas id="budgetDoughnut"></canvas></div>
+          </div>
+          <div class="chart-card wide">
+            <div class="chart-head"><h3>Avance mensual del presupuesto</h3><span>Acumulado · % ejercido</span></div>
+            <div class="chart-box"><canvas id="budgetLine"></canvas></div>
+          </div>
+        </div>
+
+        <div class="section-title"><h2>Indicadores de seguimiento</h2><span>Referencia nacional</span></div>
+        <div class="panel">
+          <div class="progress-wrap"><div class="progress-label"><span>Avance del presupuesto aprobado</span><strong>60.1%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:60.1%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-label"><span>Avance de inversión</span><strong>54.8%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:54.8%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-label"><span>Avance de costos</span><strong>68.3%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:68.3%"></div></div></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-title" style="margin:0 0 8px"><h2>Distribución por Centro SICT</h2><span>Datos simulados</span></div>
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Centro</th><th>Aprobado</th><th>Ejercido</th><th>Avance</th><th>Disponible</th></tr></thead>
+            <tbody>
+              <tr><td>Jalisco</td><td>$1.85 M</td><td>$1.18 M</td><td>63.8%</td><td>$670 M</td></tr>
+              <tr><td>Nuevo León</td><td>$1.62 M</td><td>$1.01 M</td><td>62.3%</td><td>$610 M</td></tr>
+              <tr><td>Veracruz</td><td>$2.14 M</td><td>$1.23 M</td><td>57.5%</td><td>$910 M</td></tr>
+              <tr><td>Oaxaca</td><td>$1.46 M</td><td>$820 M</td><td>56.2%</td><td>$640 M</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ESTUDIOS -->
+      <section id="page-estudios" class="page">
+        <div class="hero"><div><h1>Estudios</h1><p>Información territorial y de planeación para análisis nacional y regional.</p></div><div class="hero-meta">FUENTES<strong>Red · Habitantes · Superficie</strong></div></div>
+        <div class="section-title"><h2>Indicadores territoriales</h2><span>Datos simulados</span></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">RED CARRETERA</div><div class="metric-value">42,318 km</div><div class="metric-foot">Red de referencia</div></div>
+          <div class="metric"><div class="metric-label">HABITANTES</div><div class="metric-value">129.4 M</div><div class="metric-foot">Población de referencia</div></div>
+          <div class="metric"><div class="metric-label">SUPERFICIE</div><div class="metric-value">1.96 M km²</div><div class="metric-foot">Territorio nacional</div></div>
+          <div class="metric"><div class="metric-label">KM / 1,000 HAB.</div><div class="metric-value">327.0</div><div class="metric-foot">Indicador derivado</div></div>
+        </div>
+        <div class="card-grid">
+          <div class="simple-card"><h3>Red</h3><p>Información de kilómetros de red y su distribución por Centro SICT.</p></div>
+          <div class="simple-card"><h3>Habitantes</h3><p>Población por entidad y Centro SICT para análisis de cobertura.</p></div>
+          <div class="simple-card"><h3>Superficie</h3><p>Superficie territorial en km² y métricas comparativas.</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const centers=["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Guanajuato","Guerrero","Hidalgo","Jalisco","México","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"];
+
+function login(){
+  const c=document.getElementById('centro').value, e=document.getElementById('correo').value, p=document.getElementById('password').value;
+  if(!c||!e||!p){alert("Para el prototipo, complete Centro SICT, correo y contraseña.");return}
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('topCentro').textContent=c;
+  document.getElementById('miniCentro').textContent='Centro SICT '+c;
+  renderCenters();
+}
+function logout(){document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex'}
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target=document.getElementById('page-'+name);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const labels={inicio:'Inicio',normativa:'Normativa',centros:'Centros SICT',presupuesto:'Presupuesto',estudios:'Estudios'};
+  document.getElementById('crumb').textContent=labels[name]||'Centro SICT';
+  if(name==='centros') renderCenters();
+}
+function renderCenters(filter=''){
+  const list=document.getElementById('centerList'); if(!list)return;
+  list.innerHTML='';
+  centers.filter(c=>c.toLowerCase().includes(filter.toLowerCase())).forEach((c,i)=>{
+    const div=document.createElement('div');div.className='center-item';div.onclick=()=>openCenter(c);
+    div.innerHTML=`<b>${c}</b><span>Centro SICT · Registro ${String(i+1).padStart(2,'0')}</span>`;
+    list.appendChild(div);
+  });
+}
+function filterCenters(v){renderCenters(v)}
+function openCenter(c){
+  document.getElementById('detailTitle').textContent='Centro SICT '+c;
+  showPage('centro-detalle');
+}
+
+const SICT_CHART_COLORS = {
+  guinda: '#611232',
+  dorado: '#A57F2C',
+  verde: '#002F2A',
+  azul: '#1565C0',
+  rojo: '#C62828',
+  gris: '#98989A'
+};
+
+let budgetChartsReady=false;
+function openFolder(name){
+  document.getElementById('normFolderView').style.display='none';
+  document.getElementById('normFolderContent').style.display='block';
+  document.getElementById('folderName').textContent=name;
+  document.getElementById('emptyTitle').textContent=name+' · carpeta vacía';
+}
+function closeFolder(){
+  document.getElementById('normFolderContent').style.display='none';
+  document.getElementById('normFolderView').style.display='block';
+}
+function renderBudgetCharts(){
+  if(budgetChartsReady || typeof Chart==='undefined') return;
+  const common={responsive:true,maintainAspectRatio:false};
+  new Chart(document.getElementById('budgetBar'),{
+    type:'bar',data:{labels:['Costos','Inversión','Operación','Otros'],
+      datasets:[
+        {label:'Aprobado',data:[9700,11800,5100,2000],backgroundColor:SICT_CHART_COLORS.guinda,borderColor:SICT_CHART_COLORS.guinda,borderWidth:1,borderRadius:4},
+        {label:'Ejercido',data:[6625,6466,3264,845],backgroundColor:SICT_CHART_COLORS.dorado,borderColor:SICT_CHART_COLORS.dorado,borderWidth:1,borderRadius:4}
+      ]},
+    options:{...common,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},scales:{y:{beginAtZero:true,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}
+  });
+  new Chart(document.getElementById('budgetDoughnut'),{
+    type:'doughnut',data:{labels:['Inversión','Costos','Operación','Otros'],datasets:[{data:[11800,9700,5100,2000],backgroundColor:[SICT_CHART_COLORS.guinda,SICT_CHART_COLORS.dorado,SICT_CHART_COLORS.verde,SICT_CHART_COLORS.gris],borderColor:'#FFFFFF',borderWidth:2}]},
+    options:{...common,cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:14}}}}
+  });
+  new Chart(document.getElementById('budgetLine'),{
+    type:'line',data:{labels:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep'],
+      datasets:[{label:'Avance acumulado',data:[5,11,18,25,33,41,49,55,60.1],tension:.35,fill:false,borderColor:SICT_CHART_COLORS.verde,backgroundColor:'rgba(0,47,42,.08)',borderWidth:3,pointRadius:3.5,pointBackgroundColor:SICT_CHART_COLORS.verde}]},
+    options:{...common,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:10}}},x:{ticks:{font:{size:10}}}}}
+  });
+  budgetChartsReady=true;
+}
+const oldShowPage=showPage;
+showPage=function(name,btn){
+  oldShowPage(name,btn);
+  if(name==='presupuesto') setTimeout(renderBudgetCharts,80);
+};
+renderCenters();
+
+</script>
+</body>
+</html>
